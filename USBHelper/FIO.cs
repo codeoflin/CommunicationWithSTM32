@@ -71,6 +71,6 @@ namespace USBHelper
 		public static extern uint WaitForSingleObject(IntPtr hHandle, int dwMilliseconds);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
-		public static extern bool WriteFile(SafeFileHandle hFile, byte[] lpBuffer, uint nNumberOfBytesToWrite, ref uint lpNumberOfBytesWritten, int lpOverlapped);
+		public static extern int WriteFile(IntPtr hFile, byte[] lpBuffer, uint nNumberOfBytesToWrite, ref uint lpNumberOfBytesWritten, int lpOverlapped);
 	}
 }
