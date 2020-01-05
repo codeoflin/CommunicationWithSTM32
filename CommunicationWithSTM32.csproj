@@ -6,4 +6,8 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="libusbdotnet" Version="2.2.29" />
+  </ItemGroup>
+
 </Project>

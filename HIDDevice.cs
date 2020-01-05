@@ -225,59 +225,47 @@ namespace CommunicationWithSTM32
 
 		public static interfaceDetails[] getConnectedDevices()
 		{
-			interfaceDetails[] devices = new interfaceDetails[0];
+			var devices = new interfaceDetails[0];
 
 			//Create structs to hold interface information
-			SP_DEVINFO_DATA devInfo = new SP_DEVINFO_DATA();
-			SP_DEVICE_INTERFACE_DATA devIface = new SP_DEVICE_INTERFACE_DATA();
+			var devInfo = new SP_DEVINFO_DATA();
+			var devIface = new SP_DEVICE_INTERFACE_DATA();
 			devInfo.cbSize = (uint)Marshal.SizeOf(devInfo);
 			devIface.cbSize = (uint)(Marshal.SizeOf(devIface));
-
-			Guid G = new Guid();
+			var G = new Guid();
 			HidD_GetHidGuid(ref G); //Get the guid of the HID device class
-
-			IntPtr i = SetupDiGetClassDevs(ref G, IntPtr.Zero, IntPtr.Zero, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
-
+			var i = SetupDiGetClassDevs(ref G, IntPtr.Zero, IntPtr.Zero, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
 			//Loop through all available entries in the device list, until false
-			SP_DEVICE_INTERFACE_DETAIL_DATA didd = new SP_DEVICE_INTERFACE_DETAIL_DATA();
-			if (IntPtr.Size == 8) // for 64 bit operating systems
-				didd.cbSize = 8;
-			else
-				didd.cbSize = 4 + Marshal.SystemDefaultCharSize; // for 32 bit systems
-
+			var didd = new SP_DEVICE_INTERFACE_DETAIL_DATA();
+			didd.cbSize = (IntPtr.Size == 8) ? 8 : 4 + Marshal.SystemDefaultCharSize;//// for 64 bit systems or 32 bit systems
 			int j = -1;
 			bool b = true;
 			int error;
 			SafeFileHandle tempHandle;
-
 			while (b)
 			{
 				j++;
-
 				b = SetupDiEnumDeviceInterfaces(i, IntPtr.Zero, ref G, (uint)j, ref devIface);
 				error = Marshal.GetLastWin32Error();
-				if (b == false)
-					break;
+				if (b == false) break;
 
 				uint requiredSize = 0;
 				bool b1 = SetupDiGetDeviceInterfaceDetail(i, ref devIface, ref didd, 256, out requiredSize, ref devInfo);
 				string devicePath = didd.DevicePath;
 
 				//create file handles using CT_CreateFile
-				tempHandle = CreateFile(devicePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-						IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+				tempHandle = CreateFile(devicePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
 
 				//get capabilites - use getPreParsedData, and getCaps
 				//store the reportlengths
-				IntPtr ptrToPreParsedData = new IntPtr();
+				var ptrToPreParsedData = new IntPtr();
 				bool ppdSucsess = HidD_GetPreparsedData(tempHandle, ref ptrToPreParsedData);
-				if (ppdSucsess == false)
-					continue;
+				if (ppdSucsess == false) continue;
 
-				HIDP_CAPS capabilities = new HIDP_CAPS();
+				var capabilities = new HIDP_CAPS();
 				int hidCapsSucsess = HidP_GetCaps(ptrToPreParsedData, ref capabilities);
 
-				HIDD_ATTRIBUTES attributes = new HIDD_ATTRIBUTES();
+				var attributes = new HIDD_ATTRIBUTES();
 				bool hidAttribSucsess = HidD_GetAttributes(tempHandle, ref attributes);
 
 				string productName = "";
@@ -293,7 +281,7 @@ namespace CommunicationWithSTM32
 				HidD_FreePreparsedData(ref ptrToPreParsedData);
 
 				//If connection was sucsessful, record the values in a global struct
-				interfaceDetails productInfo = new interfaceDetails();
+				var productInfo = new interfaceDetails();
 				productInfo.devicePath = devicePath;
 				productInfo.manufacturer = manfString;
 				productInfo.product = productName;
@@ -302,19 +290,14 @@ namespace CommunicationWithSTM32
 				productInfo.versionNumber = (ushort)attributes.VersionNumber;
 				productInfo.IN_reportByteLength = (int)capabilities.InputReportByteLength;
 				productInfo.OUT_reportByteLength = (int)capabilities.OutputReportByteLength;
-
-				if (stringIsInteger(SN))
-					productInfo.serialNumber = Convert.ToInt32(SN);     //Check that serial number is actually a number
-
+				if (stringIsInteger(SN)) productInfo.serialNumber = Convert.ToInt32(SN);     //Check that serial number is actually a number
 				int newSize = devices.Length + 1;
 				Array.Resize(ref devices, newSize);
 				devices[newSize - 1] = productInfo;
 			}
 			SetupDiDestroyDeviceInfoList(i);
-
 			return devices;
 		}
-
 		#endregion
 
 		#region constructors
@@ -329,7 +312,7 @@ namespace CommunicationWithSTM32
 		/// <param name="useAsyncReads">True - Read the device and generate events on data being available</param>
 		public HIDDevice(ushort VID, ushort PID, ushort serialNumber, bool useAsyncReads)
 		{
-			interfaceDetails[] devices = getConnectedDevices();
+			var devices = getConnectedDevices();
 
 			//loop through all connected devices to find one with the correct details
 			for (int i = 0; i < devices.Length; i++)
@@ -424,16 +407,10 @@ namespace CommunicationWithSTM32
 
 		public void close()
 		{
-			if (FS_read != null)
-				FS_read.Close();
-			if (FS_write != null)
-				FS_write.Close();
-
-			if ((handle_read != null) && (!(handle_read.IsInvalid)))
-				handle_read.Close();
-			if ((handle_write != null) && (!(handle_write.IsInvalid)))
-				handle_write.Close();
-
+			if (FS_read != null) FS_read.Close();
+			if (FS_write != null) FS_write.Close();
+			if ((handle_read != null) && (!(handle_read.IsInvalid))) handle_read.Close();
+			if ((handle_write != null) && (!(handle_write.IsInvalid))) handle_write.Close();
 			this.deviceConnected = false;
 		}
 

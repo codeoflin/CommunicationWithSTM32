@@ -201,14 +201,15 @@ namespace USBHelper
 		public bool CmdWrite(byte[] dat, ref byte status)
 		{
 			uint a = 0;
-			var iret = FIO.WriteFile(m_intPtrUSB, dat, (uint)dat.Length, ref a, 0);
-			iret = iret;
-			return true;
 			byte[] array = new byte[dat.Length + 2];
 			array[0] = 0x21;
 			array[1] = 0x09;
 			Array.Copy(dat, 0, array, 2, dat.Length);
-			if (!HID.HidD_SetFeature(m_intPtrUSB, array, (uint)array.Length)) return false;
+			var iret = FIO.WriteFile(m_intPtrUSB, array, (uint)array.Length, ref a, 0);
+			//iret = iret;
+			//return true;
+
+			//if (!HID.HidD_SetFeature(m_intPtrUSB, array, (uint)array.Length)) return false;
 			Thread.Sleep(5);
 			/*
 var  array2 = new byte[dat.Length + 2]

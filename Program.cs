@@ -16,7 +16,7 @@ namespace CommunicationWithSTM32
 			int selectedDeviceIndex = -1;
 			for (int i = 0; i < devices.Length; i++)
 			{
-				if (devices[i].VID == 0x0001 && devices[i].PID == 0x5753) selectedDeviceIndex = i;
+				if (devices[i].VID == 0x0001 && devices[i].PID == 0x64) selectedDeviceIndex = i;
 			}
 			ushort VID = devices[selectedDeviceIndex].VID;
 			ushort PID = devices[selectedDeviceIndex].PID;
@@ -47,9 +47,17 @@ namespace CommunicationWithSTM32
 			//close the device to release all handles etc
 			device.close();
 		}
+
+		static void Test2()
+		{
+
+
+		}
 		static void Main(string[] args)
 		{
-			var te = CUSB.EnumPorts(0x0001, 0x5753);
+			Test();
+			return;
+			var te = CUSB.EnumPorts(0x0001, 0x064);
 			var data = new byte[] { 0x04, 0x01, 0x00, 0x00, 0x00, 0x00 };
 			var m_usb = new CUSB();
 			byte b = 0;
