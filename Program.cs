@@ -44,13 +44,14 @@ namespace CommunicationWithSTM32
 			//When a report occurs, the device_dataReceived(byte[] message) method will be called
 			System.Threading.Thread.Sleep(100);
 
+			var retdata = device.read();
+			retdata = retdata;
 			//close the device to release all handles etc
 			device.close();
 		}
 
 		static void Test2()
 		{
-
 
 		}
 		static void Main(string[] args)
